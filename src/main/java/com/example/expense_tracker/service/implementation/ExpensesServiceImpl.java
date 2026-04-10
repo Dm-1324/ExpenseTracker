@@ -1,5 +1,6 @@
 package com.example.expense_tracker.service.implementation;
 
+import com.example.expense_tracker.dto.PaginatedResponseDto;
 import com.example.expense_tracker.dto.expense.ExpenseRequestDto;
 import com.example.expense_tracker.dto.expense.ExpenseResponseDto;
 import com.example.expense_tracker.dto.expense.ExpenseUpdateDto;
@@ -59,11 +60,26 @@ public class ExpensesServiceImpl implements ExpensesService {
     }
 
     @Override
-    public Page<ExpenseResponseDto> getExpenses(Long userId, Integer month, Integer year, Pageable pageable) {
+    public PaginatedResponseDto<ExpenseResponseDto> getExpenses(Long userId, Integer month, Integer year, Pageable pageable) {
         if (!usersRepository.existsById(userId)) {
             throw new ResourceNotFoundException("No user found with id " + userId);
         }
-        return expensesRepository.findByUserIdAndMonthAndYear(userId, month, year, pageable).map(expenseMapper::toExpenseResponseDto);
+
+        Page<Expenses> expensePage = expensesRepository.findByUserIdAndMonthAndYear(userId, month, year, pageable);
+
+        List<ExpenseResponseDto> content = expensePage.getContent()
+                .stream()
+                .map(expenseMapper::toExpenseResponseDto)
+                .toList();
+
+        return PaginatedResponseDto.<ExpenseResponseDto>builder()
+                .content(content)
+                .pageNumber(expensePage.getNumber())
+                .pageSize(expensePage.getSize())
+                .totalElements(expensePage.getTotalElements())
+                .totalPages(expensePage.getTotalPages())
+                .isLast(expensePage.isLast())
+                .build();
     }
 
     @Override

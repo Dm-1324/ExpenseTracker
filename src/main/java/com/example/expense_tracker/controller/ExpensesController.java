@@ -1,5 +1,6 @@
 package com.example.expense_tracker.controller;
 
+import com.example.expense_tracker.dto.PaginatedResponseDto;
 import com.example.expense_tracker.dto.expense.ExpenseRequestDto;
 import com.example.expense_tracker.dto.expense.ExpenseResponseDto;
 import com.example.expense_tracker.dto.expense.ExpenseUpdateDto;
@@ -7,7 +8,6 @@ import com.example.expense_tracker.service.ExpensesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ public class ExpensesController {
     }
 
     @GetMapping("/{userId}/history")
-    public ResponseEntity<Page<ExpenseResponseDto>> getExpenses(
+    public ResponseEntity<PaginatedResponseDto<ExpenseResponseDto>> getExpenses(
             @PathVariable Long userId,
             @RequestParam(required = false) Integer month,
             @RequestParam(required = false) Integer year,
