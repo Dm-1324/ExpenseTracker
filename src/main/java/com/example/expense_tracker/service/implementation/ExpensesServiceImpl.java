@@ -5,15 +5,19 @@ import com.example.expense_tracker.dto.expense.ExpenseResponseDto;
 import com.example.expense_tracker.dto.expense.ExpenseUpdateDto;
 import com.example.expense_tracker.entity.Expenses;
 import com.example.expense_tracker.entity.Users;
+import com.example.expense_tracker.exception.NotAllowedException;
 import com.example.expense_tracker.exception.ResourceNotFoundException;
 import com.example.expense_tracker.repository.ExpensesRepository;
 import com.example.expense_tracker.repository.UsersRepository;
 import com.example.expense_tracker.service.ExpensesService;
 import com.example.expense_tracker.utils.ExpenseMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -48,17 +52,41 @@ public class ExpensesServiceImpl implements ExpensesService {
                         new ResourceNotFoundException("User not found with id " + userId
                         ));
 
-        List<ExpenseResponseDto> userExpenseList = expensesRepository.findAll()
-                .stream()
-                .filter(exp -> exp.getUser() == user)
-                .map(expenseMapper::toExpenseResponseDto)
-                .toList();
+        List<ExpenseResponseDto> userExpenseList = expensesRepository.findByUserId(userId).stream().map(expenseMapper
+                ::toExpenseResponseDto).toList();
 
         return userExpenseList;
     }
 
     @Override
+    public Page<ExpenseResponseDto> getExpenses(Long userId, Integer month, Integer year, Pageable pageable) {
+        if (!usersRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("No user found with id " + userId);
+        }
+        return expensesRepository.findByUserIdAndMonthAndYear(userId, month, year, pageable).map(expenseMapper::toExpenseResponseDto);
+    }
+
+    @Override
     public ExpenseResponseDto updateExpense(ExpenseUpdateDto expenseUpdateDto, Long expenseId, Long userId) {
-        return null;
+        Expenses expenses = expensesRepository.findById(expenseId).orElseThrow(
+                () -> new ResourceNotFoundException("No expense found with id " + expenseId)
+        );
+
+        if (!Objects.equals(expenses.getUser().getId(), userId)) {
+            throw new NotAllowedException("You are not authorised to update this expense");
+        }
+        return expenseMapper.updatingExpense(expenseUpdateDto, expenseId);
+    }
+
+    @Override
+    public void deleteExpense(Long expenseId, Long userId) {
+        Expenses expenses = expensesRepository.findById(expenseId).orElseThrow(
+                () -> new ResourceNotFoundException("No expense found with id " + expenseId)
+        );
+
+        if (!Objects.equals(expenses.getUser().getId(), userId)) {
+            throw new NotAllowedException("You are not authorised to update this expense");
+        }
+        expensesRepository.delete(expenses);
     }
 }
