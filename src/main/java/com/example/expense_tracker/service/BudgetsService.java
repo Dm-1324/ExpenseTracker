@@ -1,0 +1,7 @@
+package com.example.expense_tracker.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public interface BudgetsService {
+}
