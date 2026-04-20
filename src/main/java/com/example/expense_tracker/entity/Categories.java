@@ -26,6 +26,10 @@ public class Categories {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @ManyToOne
+    @JoinColumn(name = "users_id")
+    private Users user;
+
     @OneToMany(mappedBy = "category")
     private List<Expenses> expenses;
 

@@ -9,4 +9,12 @@ import java.util.List;
 public interface CategoriesService {
 
     List<CategoriesResponseDto> getAllCategories();
+
+    CategoriesResponseDto createCategory(String name, Long userId);
+
+    List<CategoriesResponseDto> getAllUserCategories(Long userId);
+
+    void deleteCategory(Long categoryId, Long userId);
+
+    CategoriesResponseDto getCategoryById(Long categoryId, Long userId);
 }

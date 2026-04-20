@@ -19,6 +19,9 @@ public class Budgets {
     @JoinColumn(name = "users_id")
     private Users user;
 
+    private Integer month;
+    private Integer year;
+
     @ManyToOne
     @JoinColumn(name = "categories_id")
     private Categories category;
