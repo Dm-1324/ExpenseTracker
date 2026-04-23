@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BudgetResponseDto {
-
-    private String category;
+    private Long id;
+    private Long categoryId;
+    private String categoryName;
     private Double limit;
     private Double spent;
     private Double remainingAmount;
+    private Integer month;
+    private Integer year;
 }

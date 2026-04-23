@@ -23,4 +23,16 @@ public interface ExpensesRepository extends JpaRepository<Expenses, Long> {
             @Param("month") Integer month,
             @Param("year") Integer year,
             Pageable pageable);
+
+    @Query("""
+                SELECT COALESCE(SUM(e.amount), 0)
+                FROM Expenses e
+                WHERE e.user.id = :userId
+                AND e.category.id = :categoryId
+                AND MONTH(e.expenseDate) = :month
+                AND YEAR(e.expenseDate) = :year
+            """)
+    Double getTotalSpentByCategory(
+            Long userId, Long categoryId, Integer month, Integer year
+    );
 }
